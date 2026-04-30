@@ -1,0 +1,13 @@
+FROM node:20-alpine
+WORKDIR /app
+RUN npm install -g pnpm
+
+COPY package.json pnpm-lock.yaml* ./
+COPY workers/groq-summariser/package.json ./workers/groq-summariser/
+COPY prisma ./prisma
+RUN pnpm install --frozen-lockfile
+RUN pnpm --filter groq-summariser exec prisma generate
+
+COPY workers/groq-summariser ./workers/groq-summariser
+
+CMD ["pnpm", "--filter", "groq-summariser", "start"]

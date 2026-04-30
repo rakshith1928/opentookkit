@@ -1,0 +1,20 @@
+# deps
+node_modules/
+.pnpm-store/
+
+# next.js
+apps/web/.next/
+apps/web/out/
+
+# env
+.env
+.env.local
+.env.*.local
+
+# prisma
+prisma/migrations/dev.db
+
+# misc
+.DS_Store
+*.log
+dist/

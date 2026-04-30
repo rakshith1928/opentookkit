@@ -1,0 +1,13 @@
+FROM node:20-alpine
+WORKDIR /app
+RUN npm install -g pnpm
+
+COPY package.json pnpm-lock.yaml* ./
+COPY workers/github-sync/package.json ./workers/github-sync/
+COPY prisma ./prisma
+RUN pnpm install --frozen-lockfile
+RUN pnpm --filter github-sync exec prisma generate
+
+COPY workers/github-sync ./workers/github-sync
+
+CMD ["pnpm", "--filter", "github-sync", "start"]
