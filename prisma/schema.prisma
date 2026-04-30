@@ -1,0 +1,130 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum Role {
+  USER
+  ADMIN
+  MODERATOR
+}
+
+enum Status {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model User {
+  id          String       @id @default(uuid())
+  clerkId     String       @unique
+  username    String       @unique
+  avatarUrl   String?
+  role        Role         @default(USER)
+  createdAt   DateTime     @default(now())
+
+  tools       Tool[]
+  upvotes     Upvote[]
+  collections Collection[]
+}
+
+model Tool {
+  id            String    @id @default(uuid())
+  submittedById String
+  name          String
+  slug          String    @unique
+  githubRepo    String    @unique
+  homepageUrl   String?
+  license       String?
+  status        Status    @default(PENDING)
+  upvoteCount   Int       @default(0)
+  githubStars   Int       @default(0)
+  githubForks   Int       @default(0)
+  aiSummary     String?
+  tags          String[]  @default([])
+  lastSyncedAt  DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  submittedBy   User             @relation(fields: [submittedById], references: [id])
+  starSnapshots StarSnapshot[]
+  categories    ToolCategory[]
+  upvotes       Upvote[]
+  collections   CollectionTool[]
+
+  @@index([githubStars])
+  @@index([upvoteCount])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model StarSnapshot {
+  id         String   @id @default(uuid())
+  toolId     String
+  stars      Int
+  forks      Int
+  recordedAt DateTime @default(now())
+
+  tool Tool @relation(fields: [toolId], references: [id], onDelete: Cascade)
+
+  @@index([toolId, recordedAt])
+}
+
+model Category {
+  id          String  @id @default(uuid())
+  name        String  @unique
+  slug        String  @unique
+  description String?
+  emoji       String?
+
+  tools ToolCategory[]
+}
+
+model ToolCategory {
+  toolId     String
+  categoryId String
+
+  tool     Tool     @relation(fields: [toolId], references: [id], onDelete: Cascade)
+  category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@id([toolId, categoryId])
+}
+
+model Upvote {
+  id        String   @id @default(uuid())
+  userId    String
+  toolId    String
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tool Tool @relation(fields: [toolId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, toolId])
+}
+
+model Collection {
+  id        String   @id @default(uuid())
+  userId    String
+  name      String
+  isPublic  Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user  User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tools CollectionTool[]
+}
+
+model CollectionTool {
+  collectionId String
+  toolId       String
+
+  collection Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+  tool       Tool       @relation(fields: [toolId], references: [id], onDelete: Cascade)
+
+  @@id([collectionId, toolId])
+}
