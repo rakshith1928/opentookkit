@@ -1,6 +1,9 @@
 {
   "name": "opentoolkit",
   "private": true,
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
+  },
   "scripts": {
     "dev": "pnpm --filter web dev",
     "build": "pnpm --filter web build",
@@ -10,6 +13,7 @@
     "db:studio": "prisma studio --schema=prisma/schema.prisma"
   },
   "devDependencies": {
+    "@types/node": "^20.19.39",
     "prisma": "5.22.0",
     "tsx": "^4.7.2",
     "typescript": "^5.4.5"
