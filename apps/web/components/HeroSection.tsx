@@ -37,9 +37,14 @@ export default function HeroSection() {
   }
 
   return (
-    <section className="bg-[#0a0a0a] text-white py-24">
-      <div className="max-w-screen-xl mx-auto px-6">
-        <div className="max-w-3xl mx-auto text-center">
+    <section className="relative bg-[#0a0a0a] text-white py-28 md:py-36 overflow-hidden">
+
+      {/* Radial glow */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(37,99,235,0.18),transparent_55%)] pointer-events-none" />
+
+      {/* Content */}
+      <div className="relative max-w-screen-xl mx-auto px-6">
+        <div className="max-w-2xl mx-auto text-center">
 
           {/* Eyebrow pill */}
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-sm mb-8">
@@ -92,6 +97,7 @@ export default function HeroSection() {
 
         </div>
       </div>
+
     </section>
   );
 }
