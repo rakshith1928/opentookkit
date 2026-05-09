@@ -16,20 +16,31 @@ function useCountUp(target: number, triggered: boolean, duration = 1500) {
     if (!triggered) return;
 
     let startTime: number | null = null;
-    const start = 0;
+    let frameId: number;
 
     function step(timestamp: number) {
       if (!startTime) startTime = timestamp;
+
       const elapsed = timestamp - startTime;
       const progress = Math.min(elapsed / duration, 1);
+
       // easeOutCubic
       const eased = 1 - Math.pow(1 - progress, 3);
-      setValue(Math.floor(start + (target - start) * eased));
-      if (progress < 1) requestAnimationFrame(step);
-      else setValue(target);
+
+      setValue(Math.floor((target - 0) * eased));
+
+      if (progress < 1) {
+        frameId = requestAnimationFrame(step);
+      } else {
+        setValue(target);
+      }
     }
 
-    requestAnimationFrame(step);
+    frameId = requestAnimationFrame(step);
+
+    return () => {
+      cancelAnimationFrame(frameId);
+    };
   }, [triggered, target, duration]);
 
   return value;
@@ -45,8 +56,8 @@ function StatItem({
   const value = useCountUp(stat.target, triggered);
 
   return (
-    <div className="text-center md:text-left">
-      <div className="flex items-baseline justify-center md:justify-start gap-1">
+    <div className="text-center">
+      <div className="flex items-baseline justify-center gap-1">
         <span className="stat-number text-4xl font-semibold tracking-tighter text-gray-900">
           {stat.id === "upvotes"
             ? value.toLocaleString()
@@ -86,7 +97,7 @@ export default function StatsSection() {
       <div className="max-w-screen-xl mx-auto px-6">
         <div
           ref={ref}
-          className="max-w-5xl mx-auto rounded-3xl border border-gray-100 bg-white p-8 shadow-sm"
+          className="max-w-5xl mx-auto rounded-3xl border border-gray-100 bg-white p-8 shadow-sm transition-all hover:border-gray-200 hover:shadow-md"
         >
           <div className="grid grid-cols-2 gap-8 md:grid-cols-4">
             {STATS.map((stat) => (
